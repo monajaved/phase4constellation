@@ -1,15 +1,21 @@
 const constellations = [];
+const users = [];
+let favorite_params = {};
 
 function main(){
     return document.getElementById("main");
 }
 
-function titleInput(){
-    return document.getElementById("title");
+function nameInput(){
+    return document.getElementById("name");
 }
 
-function contentInput(){
-    return document.getElementById("content");
+function imageURLInput(){
+    return document.getElementById("image");
+}
+
+function usernameInput(){
+  return document.getElementById("username")
 }
 
 function form(){
@@ -19,14 +25,18 @@ function form(){
 function formLink() {
     return document.getElementById("form-link");
 }
-  
+
   function constellationsLink() {
     return document.getElementById("constellations-link");
 }
 
+function resetUserFormInputs(){
+  usernameInput().value = "";
+}
+
 function resetFormInputs(){
-    titleInput().value = "";
-    contentInput().value = "";
+    nameInput().value = "";
+    imageURLInput().value = "";
 }
 
 function resetMain(){
@@ -38,17 +48,59 @@ function formTemplate() {
     <h3>Create Constellation</h3>
     <form id="form">
       <div class="input-field">
-        <label for="title">Title</label>
-        <input type="text" name="title" id="title" />
+        <label for="name">Name</label>
+        <input type="text" name="name" id="name" />
       </div>
       <div class="input-field">
-        <label for="content">Content</label><br />
-        <textarea name="content" id="content" cols="30" rows="10"></textarea>
+        <label for="image">Image URL</label><br />
+        <textarea name="image" id="image" cols="30" rows="10"></textarea>
       </div>
       <input type="submit" value="Create Constellation" />
     </form>
     `;
 }
+
+// function userFormTemplate() {
+//   return `
+//   <h3>Welcome</h3>
+//   <form id="userform">
+//       <div class="input-field">
+//         <label for="username">Enter Username</label>
+//         <input type="text" name="username" id="username" />
+//       </div>
+//       <input type="submit" value="Create User" />
+//   </form>
+//   `;
+// }
+
+function userFormText() {
+  let txt;
+  let person = prompt("Please enter your username:", "Here");
+  if (person == null || person == "") {
+    txt = "User cancelled the prompt.";
+  } else {
+    txt = "Hello " + person + "!";
+    usernameJSON = {"username": person};
+    users.push(usernameJSON)
+    Api.post('/users', usernameJSON)
+    getAPI(person);
+  }
+
+  document.getElementById("intro").innerHTML = txt;
+}
+
+async function getAPI(person) {
+  const postPromise = await fetch('http://localhost:3000/users');
+  const data = await postPromise.json();
+  // let data = Api.get('/users');
+  const user = data.filter(({username}) => username === person);
+  favorite_params["user_id"] = user[0].id
+  // console.log(favorite_params)
+  // console.log(user[0].id)
+
+
+};
+
 
 function constellationsTemplate() {
     return `
@@ -58,20 +110,21 @@ function constellationsTemplate() {
 }
 
 
-function renderBlog(constellations) {
-    let div = document.createElement("div");
-    let h4 = document.createElement("h4");
-    let p = document.createElement("p");
-    let constellationsDiv = document.getElementById("constellations");
+// function renderConstellation(constellation) {
+//     let div = document.createElement("div");
+//     let h4 = document.createElement("h4");
+//     let img = document.createElement("img");
+//     let constellationsDiv = document.getElementById("constellations");
 
-    h4.innerText = constellation.title;
-    p.innerText = constellations.content;
+//     h4.innerText = constellation.name;
+//     img.src = constellation.image;
 
-    div.appendChild(h4);
-    div.appendChild(p);
+//     div.appendChild(h4);
+//     div.appendChild(p);
 
-    constellationsDiv.appendChild(div);
-}
+//     constellationsDiv.appendChild(div);
+// }
+
 
 function renderForm() {
     resetMain();
@@ -92,8 +145,8 @@ function submitForm(e) {
     e.preventDefault();
   
     constellations.push({
-      title: titleInput().value,
-      content: contentInput().value,
+      name: nameInput().value,
+      image: imageURLInput().value,
     });
   
     renderConstellations();
@@ -114,23 +167,7 @@ function constellationsLinkEvent() {
     });
   }
 
-  function myFunction() {
-    document.getElementById("myDropdown").classList.toggle("show");
-  }
-  
-  // Close the dropdown menu if the user clicks outside of it
-  window.onclick = function(event) {
-    if (!event.target.matches('.dropbtn')) {
-      var dropdowns = document.getElementsByClassName("dropdown-content");
-      var i;
-      for (i = 0; i < dropdowns.length; i++) {
-        var openDropdown = dropdowns[i];
-        if (openDropdown.classList.contains('show')) {
-          openDropdown.classList.remove('show');
-        }
-      }
-    }
-  }
+
   
   async function getConstellation(){
       //   debugger;
@@ -142,13 +179,15 @@ function constellationsLinkEvent() {
         let testDiv = document.getElementById("constellationsDiv")
         let constellationHtml = "";
         let dropdown = document.getElementById("dropdown")
+        dropdown.add(new Option("Select Constellation", ""))
         constellation.forEach( consta =>{
             // //   constellations.push(consta)
             // constellationHtml = `
             // <h3>${consta.name}</h3>
             // <img src="${consta.image}">
             // `;
-            dropdown.add(new Option(consta.name, consta.image))
+            dropdown.add(new Option(consta.name, JSON.stringify(consta)))
+          
         });
 
         // testDiv.innerHTML = constellationHtml;     
@@ -158,12 +197,17 @@ function constellationsLinkEvent() {
           
         //   dropdown.addEventListener("input", () => document.getElementById("optionData").innerHTML = dropdown.value)
           dropdown.addEventListener("input", () => {
-            let val = dropdown.value
+            let val = JSON.parse(dropdown.value)
+            favorite_params["constellation_id"]= (val.id);
             // console.log(val)  
             let singleConstellationHtml = `
-            <img src="${val}">
+            <img src="${val.image}">
             `;
             testDiv.innerHTML = singleConstellationHtml
+            console.log(favorite_params)
+            displayButton()
+            
+            
         }
             )
 
@@ -171,16 +215,44 @@ function constellationsLinkEvent() {
         //   console.log(constellation)
           // console.log(dropdown)
           
-        }
+        };
     //     fndropdown();
     // }
     // console.log(constellations)
+
+function displayButton(){
+  let x = document.querySelector('button');
+  if (x.style.display == "none") {
+    x.style.display = "block";
+    x.addEventListener('click', fav);
+    
+  } else {
+    x.style.display = "none";
+  }
+};
+
+function fav(e) {
+  let x = document.querySelector('button');
+  let y = document.createElement('p')
+  y.innerText = "You favorited this"
+
+  
+
+  const tgt = e.target.firstElementChild;
+  tgt.classList.toggle('fa-star');
+  console.log("You favorited this.")
+  
+  // tgt.classList.toggle('fa-star-o');
+  Api.post("/favorites", favorite_params)
+  x.style.display = "none"
+}
+
     
     document.addEventListener("DOMContentLoaded", function(){
-        // myFunction();
         getConstellation();
-        renderForm();
-    formLinkEvent();
-    constellationsLinkEvent();
+        // renderForm();
+        // formLinkEvent();
+        // constellationsLinkEvent();
+        userFormText();
 })
  

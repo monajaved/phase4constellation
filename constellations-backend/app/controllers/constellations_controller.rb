@@ -5,7 +5,7 @@ class ConstellationsController < ApplicationController
   def index
     @constellations = Constellation.all
 
-    render json: @constellations
+    render json: @constellations, include: [:users]
   end
 
   # GET /constellations/1
