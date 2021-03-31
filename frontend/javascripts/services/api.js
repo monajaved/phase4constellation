@@ -63,19 +63,6 @@ class Api {
   
       return data;
     }
-
-    static async deleteFav(path, params) {
-      let resp = await fetch(Api.baseUrl + path, {
-        method: "DELETE",
-        headers: Api.headers,
-        body: JSON.stringify(params)
-      })
-  
-      let data = await resp.json();
-  
-      return data;
-    }
-
     
   }
   

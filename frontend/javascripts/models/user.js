@@ -34,10 +34,9 @@ class User {
     
 
     
-    static async getAPI(person) {
+    static getAPI(person) {
         Api.getUser('/users', person)
             .then( data => favorite_params["user_id"] = data[0].id)
-            // console.log(user)
     }
     
 }

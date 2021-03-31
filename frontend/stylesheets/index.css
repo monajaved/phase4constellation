@@ -2,7 +2,9 @@ body {
 
   padding: 0;
   margin: 0;
+  color: white;
   background-color: rgba(0, 0, 0, 0.527);
+  background-image: url("https://cdn.theatlantic.com/thumbor/0WbLAE1gdgUWBrS7Kr6XTKhGjtE=/0x141:2781x1705/1440x810/https://cdn.theatlantic.com/media/img/mt/2015/10/Cygnus_v3_BandW/original.jpg");
 }
 
 .container {
@@ -54,6 +56,10 @@ body {
   margin: 10px;
 
 }
+
+/* #usersFav {
+  color: white;
+} */
 
 
   /* working button */
