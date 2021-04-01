@@ -31,8 +31,9 @@
 
     function renderUsers(id) {
       Api.get(`/constellations/${id}`)
-      .then(usersList => { displayUsers(usersList.users)})
-
+      .then(usersList => { 
+        displayUsers(usersList.users)})
+      
     }
 
     function displayUsers(array){
@@ -46,11 +47,11 @@
         let uniqueUsernamesArray = [...new Set(usernamesArray)];
         
         // console.log(uniqueUsernamesArray)
-        currentConstellationUniqueUsernames = uniqueUsernamesArray
+        currentConstellationUniqueUsernames = [...uniqueUsernamesArray]
         // console.log(globalUniqueUsernames)
 
         usersFav.innerHTML = '<p>This constellation is favorited by:</p>' +
-        '<ul style="list-style-type: none;">' + uniqueUsernamesArray.map(item => {
+        '<ul style="list-style-type: none;">' + currentConstellationUniqueUsernames.map(item => {
           return '<li>' + item + '</li>';
         }).join('') + '</ul>';
 
@@ -69,17 +70,50 @@
 
     const tgt = e.target.firstElementChild;
     if (currentConstellationUniqueUsernames.includes(currentUser)) {
-      // console.log('includes')
       tgt.classList.toggle('fa-star');
       tgt.classList.toggle('fa-star-o');
-    } else {
       // console.log('not-includes')
-      Api.post("/favorites", favorite_params)
+      getFav()
+      unfav();
+      
+      
+    } else {
+      // console.log('includes')
+      
+      let postID = Api.post("/favorites", favorite_params)
+      postID.then(result => {
+        currentFavId.unshift(result.id)
+        renderUsers(result.constellation_id);
+      })
+      
       tgt.classList.toggle('fa-star');
       tgt.classList.toggle('fa-star-o');
-      renderUsers(favorite_params.constellation_id);
-    }
 
+      // getFav();
+    }
+    
+  }
+  
+  function getFav() {
+    
+    Api.get('/favorites')
+    .then(data => data.filter(({user_id, constellation_id}) => user_id === favorite_params.user_id && constellation_id === favorite_params.constellation_id))
+    .then(result => currentFavId.unshift(result[0].id))
+
+    
+    
+    
+    // console.log(currentFavId[0])
+    
+  }
+  
+  
+  function unfav(){
+    Api.delete("/favorites/" + currentFavId[0])
+    // console.log('its deleted')
+    currentConstellationUniqueUsernames = [...currentConstellationUniqueUsernames.filter(e => e !== currentUser)]
+    renderUsers(favorite_params.constellation_id);
+    
   }
     
       document.addEventListener("DOMContentLoaded", function(){

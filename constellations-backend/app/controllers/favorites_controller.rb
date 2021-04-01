@@ -11,8 +11,6 @@ class FavoritesController < ApplicationController
       def show
         render json: @favorite
       end
-
-
      
       # POST /users
       def create
@@ -37,6 +35,7 @@ class FavoritesController < ApplicationController
       # DELETE /users/1
       def destroy
         @favorite.destroy
+        
       end
     
       private

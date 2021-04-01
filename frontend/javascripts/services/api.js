@@ -37,7 +37,7 @@ class Api {
       })
   
       let data = await resp.json();
-  
+      
       return data;
     }
   

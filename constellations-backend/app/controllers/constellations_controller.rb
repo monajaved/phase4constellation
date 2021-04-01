@@ -10,7 +10,7 @@ class ConstellationsController < ApplicationController
 
   # GET /constellations/1
   def show
-    constellation = Constellation.find_by(id: params[:id])
+    # constellation = Constellation.find_by(id: params[:id])
     render json: @constellation, :include => [:users]
   end
 
